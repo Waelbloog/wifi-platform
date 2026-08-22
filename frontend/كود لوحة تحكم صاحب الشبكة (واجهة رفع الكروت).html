@@ -150,5 +150,103 @@
             </div>
         </div>
     </main>
+    <script>
+    // 1. تحديد العناصر من الواجهة
+    const fileInput = document.querySelector('input[type="file"]');
+    const dropZone = fileInput.parentElement;
+    const packageSelect = document.getElementById('packageSelect');
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    let selectedFile = null;
+
+    // 2. تغيير شكل منطقة السحب والإفلات عند مرور الملف فوقها
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('bg-indigo-100', 'border-indigo-500'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('bg-indigo-100', 'border-indigo-500'), false);
+    });
+
+    // 3. التقاط الملف سواء بالسحب والإفلات أو بالضغط والاختيار
+    dropZone.addEventListener('drop', (e) => {
+        selectedFile = e.dataTransfer.files[0];
+        checkReadyToUpload();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        selectedFile = e.target.files[0];
+        checkReadyToUpload();
+    });
+
+    packageSelect.addEventListener('change', checkReadyToUpload);
+
+    // 4. دالة للتحقق من اختيار الملف والباقة لتفعيل زر الرفع
+    function checkReadyToUpload() {
+        if (selectedFile) {
+            // تغيير النص لإظهار اسم الملف المختار
+            dropZone.querySelector('h3').innerText = `تم اختيار: ${selectedFile.name}`;
+            dropZone.querySelector('h3').classList.add('text-indigo-600');
+        }
+
+        if (selectedFile && packageSelect.value !== "") {
+            uploadBtn.classList.remove('pointer-events-none', 'opacity-50');
+            uploadBtn.innerText = 'رفع الكروت الآن 🚀';
+        }
+    }
+
+    // 5. إرسال الملف إلى السيرفر (Backend) عند الضغط على زر الرفع
+    uploadBtn.addEventListener('click', async () => {
+        if (!selectedFile || packageSelect.value === "") return;
+
+        // تغيير حالة الزر أثناء الرفع
+        const originalText = uploadBtn.innerText;
+        uploadBtn.innerText = 'جاري المعالجة والرفع... ⏳';
+        uploadBtn.classList.add('pointer-events-none', 'opacity-50');
+
+        // تجهيز البيانات للإرسال (FormData)
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('package_id', packageSelect.value);
+        formData.append('network_id', 1); // نفترض أن رقم الشبكة الحالية هو 1 مؤقتاً
+
+        try {
+            // إرسال الطلب إلى سيرفرك على Render
+            const response = await fetch('https://wifi-platform.onrender.com/api/upload-cards', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ نجاح: ' + result.message);
+                // إعادة الواجهة لحالتها الطبيعية بعد النجاح
+                selectedFile = null;
+                packageSelect.value = "";
+                dropZone.querySelector('h3').innerText = 'اسحب وأفلت ملف الكروت هنا';
+                dropZone.querySelector('h3').classList.remove('text-indigo-600');
+            } else {
+                alert('❌ خطأ: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Network Error:', error);
+            alert('❌ فشل الاتصال بالسيرفر، تأكد من اتصالك بالإنترنت وأن السيرفر يعمل.');
+        } finally {
+            // استعادة شكل الزر
+            uploadBtn.innerText = originalText;
+            uploadBtn.classList.add('pointer-events-none', 'opacity-50');
+        }
+    });
+</script>
 </body>
 </html>
