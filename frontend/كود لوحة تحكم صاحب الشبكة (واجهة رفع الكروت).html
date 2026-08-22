@@ -78,15 +78,18 @@
                         <h3 class="text-xl font-bold text-slate-800 mb-2">اسحب وأفلت ملف الكروت هنا</h3>
                         <p class="text-slate-500 text-sm mb-6">يدعم ملفات المايكروتك النصية (TXT)، وملفات Excel و CSV.</p>
                         
-                        <div class="flex items-center justify-center gap-4">
-                            <!-- اختيار الباقة التي سيتم ربط الكروت بها -->
-                            <select class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 shadow-sm font-bold w-48">
-                                <option disabled selected>اختر الباقة...</option>
-                                <option>ابو 100 (ساعة)</option>
-                                <option>ابو 250 (10 ساعات)</option>
-                                <option>ابو 500 (22 ساعة)</option>
-                            </select>
-                            <button class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl shadow-md hover:bg-indigo-700 transition-colors pointer-events-none relative z-20">
+                  <!-- تعديل قائمة الباقات لإضافة (value) لكل باقة -->
+<select id="packageSelect" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 shadow-sm font-bold w-48">
+    <option value="" disabled selected>اختر الباقة...</option>
+    <option value="1">ابو 100 (ساعة)</option>
+    <option value="2">ابو 250 (10 ساعات)</option>
+    <option value="3">ابو 500 (22 ساعة)</option>
+</select>
+
+<!-- تعديل زر الاستعراض لإضافة (id) -->
+<button id="uploadBtn" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl shadow-md hover:bg-indigo-700 transition-colors pointer-events-none opacity-50 relative z-20">
+    رفع الكروت
+</button>
                                 استعراض الملفات
                             </button>
                         </div>
