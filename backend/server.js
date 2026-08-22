@@ -85,7 +85,63 @@ app.get('/setup-db', async (req, res) => {
         res.status(500).send('❌ حدث خطأ أثناء إنشاء الجداول: ' + err.message);
     }
 });
-// تشغيل السيرفر
+// 
+const multer = require('multer');
+const xlsx = require('xlsx');
+
+// 💡 سر هندسي: نستخدم الذاكرة المؤقتة (Memory Storage) لأن سيرفرات Render تحذف الملفات المحفوظة عند إعادة التشغيل
+const upload = multer({ storage: multer.memoryStorage() });
+
+// مسار (API) لاستقبال ملف الإكسل من لوحة تحكم صاحب الشبكة
+app.post('/api/upload-cards', upload.single('file'), async (req, res) => {
+    try {
+        // 1. التأكد من وجود ملف
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'الرجاء إرفاق ملف الكروت' });
+        }
+
+        // 2. استلام بيانات الشبكة والباقة من الواجهة الأمامية
+        const { network_id, package_id } = req.body;
+
+        // 3. قراءة ملف الإكسل من الذاكرة
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0]; // قراءة الورقة الأولى
+        const sheet = workbook.Sheets[sheetName];
+        
+        // تحويل بيانات الإكسل إلى مصفوفة (Array) برمجية
+        const cards = xlsx.utils.sheet_to_json(sheet);
+
+        let insertedCount = 0;
+
+        // 4. حلقة تكرارية (Loop) لحفظ الكروت في قاعدة البيانات
+        for (let i = 0; i < cards.length; i++) {
+            // النظام ذكي: يبحث عن عمود اسمه username أو pin أو user
+            const username = cards[i].username || cards[i].pin || cards[i].user;
+            const password = cards[i].password || cards[i].pass || '';
+
+            // إذا وجد كرت، يقوم بإدخاله لقاعدة البيانات
+            if (username) {
+                await pool.query(
+                    `INSERT INTO cards (network_id, package_id, username, password, status) 
+                     VALUES ($1, $2, $3, $4, 'available')`,
+                    [network_id, package_id, String(username), String(password)]
+                );
+                insertedCount++;
+            }
+        }
+
+        // 5. الرد بنجاح العملية
+        res.json({ 
+            success: true, 
+            message: `تم قراءة الملف بنجاح! تم حفظ ${insertedCount} كرت في قاعدة البيانات.` 
+        });
+
+    } catch (err) {
+        console.error('خطأ في معالجة الملف:', err);
+        res.status(500).json({ success: false, message: 'حدث خطأ أثناء معالجة ملف الإكسل.' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 السيرفر يعمل الآن على المنفذ ${PORT}`);
 });
