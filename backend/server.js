@@ -165,7 +165,57 @@ app.get('/api/store-packages/:networkId', async (req, res) => {
         res.status(500).json({ success: false, message: 'حدث خطأ في السيرفر' });
     }
 });
+// ----------------------------------------------------
+// 5. مسار الدفع وصرف الكروت للعميل
+// ----------------------------------------------------
+app.post('/api/checkout', async (req, res) => {
+    // استلام بيانات الدفع من المتجر
+    const { network_id, package_id, phone, wallet, amount } = req.body;
 
+    try {
+        // 1. البحث عن كرت متوفر لهذه الباقة
+        const cardResult = await pool.query(
+            `SELECT id, username, password FROM cards 
+             WHERE network_id = $1 AND package_id = $2 AND status = 'available' 
+             LIMIT 1`, 
+            [network_id, package_id]
+        );
+
+        // إذا لم نجد كروتاً
+        if (cardResult.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'عفواً، نفدت الكروت لهذه الباقة!' });
+        }
+
+        const card = cardResult.rows[0];
+
+        // 2. حجز الكرت وتغيير حالته إلى "مباع"
+        await pool.query(
+            `UPDATE cards SET status = 'sold', sold_at = CURRENT_TIMESTAMP WHERE id = $1`,
+            [card.id]
+        );
+
+        // 3. تسجيل العملية المالية في جدول المبيعات
+        await pool.query(
+            `INSERT INTO transactions (network_id, card_id, customer_phone, amount, wallet_provider, status) 
+             VALUES ($1, $2, $3, $4, $5, 'completed')`,
+            [network_id, card.id, phone, amount, wallet]
+        );
+
+        // 4. إرسال بيانات الكرت للعميل ليتصل بالإنترنت!
+        res.json({
+            success: true,
+            message: 'تم الدفع بنجاح!',
+            card: {
+                username: card.username,
+                password: card.password
+            }
+        });
+
+    } catch (err) {
+        console.error('خطأ في عملية الدفع:', err);
+        res.status(500).json({ success: false, message: 'حدث خطأ في النظام أثناء معالجة الدفع' });
+    }
+});
 // تشغيل السيرفر
 app.listen(PORT, () => {
     console.log(`🚀 سيرفر ميتا ترون يعمل الآن على المنفذ ${PORT}`);
