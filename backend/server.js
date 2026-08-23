@@ -141,6 +141,83 @@ app.post('/api/upload-cards', upload.single('file'), async (req, res) => {
         res.status(500).json({ success: false, message: 'حدث خطأ أثناء معالجة ملف الإكسل.' });
     }
 });
+// مسار جلب باقات متجر معين مع عدد الكروت المتاحة
+app.get('/api/store-packages/:networkId', async (req, res) => {
+    const { networkId } = req.params;
+
+    try {
+        // استعلام SQL ذكي يجلب الباقات ويحسب عدد الكروت المتاحة (available) لكل باقة
+        const query = `
+            SELECT 
+                p.id, 
+                p.name, 
+                p.price, 
+                p.mikrotik_profile as volume,
+                COUNT(c.id) as available_cards
+            FROM packages p
+            LEFT JOIN cards c ON p.id = c.package_id AND c.status = 'available'
+            WHERE p.network_id = $1
+            GROUP BY p.id
+            ORDER BY p.price ASC;
+        `;
+        
+        const result = await pool.query(query, [networkId]);
+        
+        res.json({
+            success: true,
+            network_name: "الماهر نت", // سيتم جلبها ديناميكياً لاحقاً
+            packages: result.rows
+        });
+
+    } catch (err) {
+        console.error('خطأ في جلب الباقات:', err);
+        res.status(500).json({ success: false, message: 'حدث خطأ في السيرفر' });
+    }
+});
+// مسار جلب باقات المتجر
+app.get('/api/store-packages/:networkId', async (req, res) => {
+    const { networkId } = req.params;
+
+    try {
+        // حيلة ذكية: التأكد من وجود شبكة وباقات في قاعدة البيانات (لأغراض التجربة الأولى)
+        const checkNetwork = await pool.query('SELECT * FROM networks WHERE id = 1');
+        if (checkNetwork.rows.length === 0) {
+            // إنشاء شبكة ميتا ترون وباقات تجريبية تلقائياً
+            await pool.query(`INSERT INTO networks (id, name, slug) VALUES (1, 'ميتا ترون', 'meta-tron')`);
+            await pool.query(`INSERT INTO packages (network_id, name, price, mikrotik_profile) VALUES 
+                (1, 'ابو 100', 100, '1Hour'), 
+                (1, 'ابو 250', 250, '10Hours'),
+                (1, 'ابو 500', 500, '22Hours')`);
+        }
+
+        // الاستعلام الحقيقي لجلب الباقات وحساب عدد الكروت المتاحة
+        const query = `
+            SELECT 
+                p.id, 
+                p.name, 
+                p.price, 
+                p.mikrotik_profile as volume,
+                COUNT(c.id) as available_cards
+            FROM packages p
+            LEFT JOIN cards c ON p.id = c.package_id AND c.status = 'available'
+            WHERE p.network_id = $1
+            GROUP BY p.id
+            ORDER BY p.price ASC;
+        `;
+        
+        const result = await pool.query(query, [networkId]);
+        
+        res.json({
+            success: true,
+            network_name: "ميتا ترون",
+            packages: result.rows
+        });
+
+    } catch (err) {
+        console.error('خطأ في جلب الباقات:', err);
+        res.status(500).json({ success: false, message: 'حدث خطأ في السيرفر' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`🚀 السيرفر يعمل الآن على المنفذ ${PORT}`);
