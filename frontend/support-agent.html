@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ميتا ترون | مركز الدعم الفني</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0fdfa; } /* لون مائل للسماوي المريح للعين */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800 flex h-screen overflow-hidden selection:bg-sky-200">
+
+    <!-- شريط المهام الجانبي للموظف -->
+    <aside class="w-72 bg-sky-950 text-slate-300 flex flex-col hidden lg:flex transition-all duration-300 shadow-2xl z-20 relative">
+        <div class="h-24 flex items-center justify-center border-b border-sky-800/50 bg-sky-900/50 relative z-10">
+            <h1 class="text-2xl font-black text-white tracking-wider flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/50">🎧</div>
+                مركز الدعم
+            </h1>
+        </div>
+        <div class="p-6 relative z-10 flex-1">
+            <p class="text-xs font-bold text-sky-400 mb-4 uppercase tracking-wider">إدارة التذاكر</p>
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center gap-3 bg-sky-600 text-white px-4 py-3.5 rounded-xl shadow-lg shadow-sky-900/20 transition-all font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    صندوق الوارد <span class="mr-auto bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse" id="menuOpenCount">0</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 text-sky-200 hover:text-white hover:bg-sky-800 px-4 py-3.5 rounded-xl transition-all font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    التذاكر المحلولة
+                </a>
+            </nav>
+        </div>
+        <div class="p-6 border-t border-sky-800 relative z-10 bg-sky-950">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-sky-700 rounded-full border-2 border-emerald-400 flex items-center justify-center text-white font-bold">أ</div>
+                    <div>
+                        <p class="text-sm font-bold text-white">أحمد (دعم فني)</p>
+                        <p class="text-[10px] font-bold text-emerald-400">متصل (Online)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- مساحة العمل الرئيسية -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/50 relative">
+        
+        <!-- الشريط العلوي -->
+        <header class="h-24 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 shadow-sm">
+            <div>
+                <h2 class="text-2xl font-black text-slate-800">متابعة شكاوى العملاء</h2>
+                <p class="text-sm font-bold text-slate-500 mt-1">يجب الرد على التذاكر المفتوحة بأسرع وقت للحفاظ على جودة الخدمة.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-sm font-black flex items-center gap-2 border border-rose-100">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> <span id="headerOpenCount">0</span> تذاكر بانتظار الحل
+                </span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 z-10">
+            <div class="max-w-6xl mx-auto space-y-6">
+                
+                <!-- إحصائيات سريعة للموظف -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4 border-r-4 border-r-rose-500">
+                        <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>
+                        <div><p class="text-xs font-bold text-slate-400 mb-1">مفتوحة (عاجلة)</p><h3 class="text-xl font-black text-slate-800" id="statOpen">0</h3></div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4 border-r-4 border-r-amber-500">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <div><p class="text-xs font-bold text-slate-400 mb-1">قيد المعالجة</p><h3 class="text-xl font-black text-slate-800" id="statProgress">0</h3></div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4 border-r-4 border-r-emerald-500">
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <div><p class="text-xs font-bold text-slate-400 mb-1">تم الحل اليوم</p><h3 class="text-xl font-black text-slate-800" id="statResolved">0</h3></div>
+                    </div>
+                </div>
+
+                <!-- جدول التذاكر -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-black text-slate-700 text-lg">قائمة التذاكر</h3>
+                        <button onclick="loadTickets()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2 shadow-sm">
+                            تحديث <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="text-slate-400 bg-white border-b border-slate-100">
+                                <tr>
+                                    <th class="py-4 px-6 font-bold"># التذكرة</th>
+                                    <th class="py-4 px-6 font-bold">رقم العميل</th>
+                                    <th class="py-4 px-6 font-bold">الشبكة</th>
+                                    <th class="py-4 px-6 font-bold">المشكلة (الوصف)</th>
+                                    <th class="py-4 px-6 font-bold text-center">الحالة</th>
+                                    <th class="py-4 px-6 font-bold text-center">إجراء الموظف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketsTable" class="divide-y divide-slate-50">
+                                <tr><td colspan="6" class="py-10 text-center text-sky-500 font-bold animate-pulse">جاري تحميل التذاكر...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadTickets);
+
+        // متغير لتخزين التذاكر محلياً للتجربة
+        let currentTickets = [];
+
+        async function loadTickets() {
+            const table = document.getElementById('ticketsTable');
+            try {
+                // محاولة الجلب من السيرفر
+                const response = await fetch('https://wifi-platform.onrender.com/api/support/tickets');
+                const data = await response.json();
+                
+                if (data.success && data.tickets.length > 0) {
+                    currentTickets = data.tickets;
+                    renderTickets();
+                } else {
+                    table.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-slate-400 font-bold">لا توجد شكاوى حالياً. عمل رائع! 🎉</td></tr>';
+                    updateCounters();
+                }
+            } catch (err) {
+                // 🚀 [وضع التطوير]: وضع بيانات وهمية حقيقية لبيئة اليمن لغرض المعاينة
+                if(currentTickets.length === 0) {
+                    currentTickets = [
+                        { id: 1042, customer_phone: '775086874', network_name: 'شبكة الماهر نت', subject: 'سددت بفلوسك 500 ريال وما وصلني الكرت في مشترياتي!', status: 'OPEN', created_at: new Date() },
+                        { id: 1041, customer_phone: '771234567', network_name: 'شبكة الأمل', subject: 'الكرت يرفض يدخل، تطلع لي رسالة بالمايكروتك (مستخدم حالياً)', status: 'OPEN', created_at: new Date() },
+                        { id: 1039, customer_phone: '734445556', network_name: 'الماهر نت', subject: 'رصيد المحفظة لم يتحدث بعد التحويل من الكريمي', status: 'IN_PROGRESS', created_at: new Date() },
+                        { id: 1030, customer_phone: '711223344', network_name: 'شبكة النور', subject: 'استفسار عن أسعار باقات الشهر المفتوح', status: 'RESOLVED', created_at: new Date() }
+                    ];
+                }
+                renderTickets();
+            }
+        }
+
+        function renderTickets() {
+            const table = document.getElementById('ticketsTable');
+            table.innerHTML = '';
+
+            currentTickets.forEach(t => {
+                let statusBadge = '';
+                let actionBtn = '';
+
+                if (t.status === 'OPEN') {
+                    statusBadge = '<span class="bg-rose-100 text-rose-600 px-3 py-1 rounded-lg text-xs font-black border border-rose-200">جديدة 🔴</span>';
+                    actionBtn = `<button onclick="changeStatus(${t.id}, 'IN_PROGRESS')" class="bg-sky-50 hover:bg-sky-500 text-sky-600 hover:text-white border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors w-full mb-1">استلام للحل</button>`;
+                } else if (t.status === 'IN_PROGRESS') {
+                    statusBadge = '<span class="bg-amber-100 text-amber-600 px-3 py-1 rounded-lg text-xs font-black border border-amber-200">قيد الحل ⏳</span>';
+                    actionBtn = `<button onclick="changeStatus(${t.id}, 'RESOLVED')" class="bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors w-full">إغلاق (تم الحل)</button>`;
+                } else {
+                    statusBadge = '<span class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-lg text-xs font-black border border-emerald-200">محلولة ✅</span>';
+                    actionBtn = '<span class="text-slate-300 text-sm font-bold">مغلقة</span>';
+                }
+
+                table.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
+                        <td class="py-4 px-6 font-black text-slate-700">#${t.id}</td>
+                        <td class="py-4 px-6 font-bold text-slate-800 dir-ltr text-right" dir="ltr">${t.customer_phone}</td>
+                        <td class="py-4 px-6">
+                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">${t.network_name}</span>
+                        </td>
+                        <td class="py-4 px-6 font-bold text-slate-600 max-w-xs truncate" title="${t.subject}">${t.subject}</td>
+                        <td class="py-4 px-6 text-center">${statusBadge}</td>
+                        <td class="py-4 px-6 text-center w-32">${actionBtn}</td>
+                    </tr>
+                `;
+            });
+
+            updateCounters();
+        }
+
+        function updateCounters() {
+            let open = 0, progress = 0, resolved = 0;
+            currentTickets.forEach(t => {
+                if (t.status === 'OPEN') open++;
+                if (t.status === 'IN_PROGRESS') progress++;
+                if (t.status === 'RESOLVED') resolved++;
+            });
+
+            document.getElementById('statOpen').innerText = open;
+            document.getElementById('headerOpenCount').innerText = open;
+            document.getElementById('menuOpenCount').innerText = open;
+            document.getElementById('statProgress').innerText = progress;
+            document.getElementById('statResolved').innerText = resolved;
+        }
+
+        function changeStatus(id, newStatus) {
+            // تحديث الحالة محلياً لغرض التجربة
+            const ticketIndex = currentTickets.findIndex(t => t.id === id);
+            if (ticketIndex > -1) {
+                currentTickets[ticketIndex].status = newStatus;
+                renderTickets();
+                
+                if (newStatus === 'RESOLVED') {
+                    alert(`✅ ممتاز! تم حل مشكلة العميل وإغلاق التذكرة #${id}.`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
