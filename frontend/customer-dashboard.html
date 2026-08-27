@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ميتا ترون | لوحة العميل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        ::-webkit-scrollbar { display: none; }
+        .tab-active { border-bottom: 3px solid #8b5cf6; color: #8b5cf6; font-weight: 900; }
+        .tab-inactive { color: #64748b; font-weight: 700; border-bottom: 3px solid transparent; }
+    </style>
+    <script>
+        if (!localStorage.getItem('customer_token')) window.location.href = 'customer-login.html';
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-24 selection:bg-violet-200">
+
+    <div class="absolute top-0 left-0 w-full h-72 bg-gradient-to-b from-violet-600 to-fuchsia-600 -z-10 rounded-b-[3rem]"></div>
+
+    <nav class="pt-6 pb-4 px-4 text-white">
+        <div class="container mx-auto max-w-5xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center font-black text-xl border border-white/30">
+                    👤
+                </div>
+                <div>
+                    <p class="text-sm text-violet-100 font-semibold">مرحباً بعودتك،</p>
+                    <h1 id="customerNameDisplay" class="font-black text-xl leading-tight">...</h1>
+                </div>
+            </div>
+            <button onclick="logoutCustomer()" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">خروج</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 max-w-5xl pt-4">
+        
+        <!-- المحفظة -->
+        <div class="bg-white rounded-3xl p-6 mb-8 shadow-xl shadow-violet-900/10 border border-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row justify-between gap-4 items-center">
+                <div>
+                    <h3 class="text-slate-500 font-bold mb-1">رصيد المحفظة المتاح</h3>
+                    <div class="flex items-end gap-2">
+                        <span class="text-4xl font-black text-slate-800" id="walletBalance">0.00</span>
+                        <span class="text-lg font-bold text-slate-400 mb-1">ر.ي</span>
+                    </div>
+                </div>
+                <button onclick="openTopupModal()" class="w-full sm:w-auto bg-slate-900 text-white font-bold px-6 py-3 rounded-xl hover:bg-slate-800 shadow-md">شحن الرصيد +</button>
+            </div>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="flex border-b border-slate-200 mb-6 gap-6">
+            <button onclick="switchTab('networks')" id="tab-networks" class="tab-active pb-3 text-lg transition-colors font-bold">الشبكات المتاحة</button>
+            <button onclick="switchTab('purchases')" id="tab-purchases" class="tab-inactive pb-3 text-lg transition-colors font-bold">مشترياتي</button>
+        </div>
+
+        <div id="tab-content">
+            <!-- الشبكات -->
+            <div id="view-networks" class="block">
+                <div id="networksList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </div>
+            <!-- المشتريات -->
+            <div id="view-purchases" class="hidden">
+                <div id="purchasesList" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💡 نافذة شحن الرصيد -->
+    <div id="topupModal" class="fixed inset-0 z-50 hidden flex-col justify-end sm:justify-center items-center px-4 pb-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTopupModal()"></div>
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 relative z-10 shadow-2xl">
+            <h3 class="font-black text-xl text-slate-800 mb-4">شحن محفظة ميتا ترون</h3>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <label class="cursor-pointer group"><input type="radio" name="topupBank" value="jeeb" class="peer sr-only" checked><div class="py-3 rounded-xl border border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50 text-center font-bold text-sm text-slate-600 peer-checked:text-amber-700">جيب</div></label>
+                <label class="cursor-pointer group"><input type="radio" name="topupBank" value="floosak" class="peer sr-only"><div class="py-3 rounded-xl border border-slate-200 peer-checked:border-fuchsia-500 peer-checked:bg-fuchsia-50 text-center font-bold text-sm text-slate-600 peer-checked:text-fuchsia-700">فلوسك</div></label>
+            </div>
+            <input type="number" id="topupAmount" placeholder="المبلغ (مثال: 1000)" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold mb-4 focus:border-violet-500 focus:outline-none">
+            <button onclick="processTopup()" class="w-full bg-violet-600 text-white font-bold py-3 rounded-xl shadow-lg">تنفيذ الشحن ⚡</button>
+            <button onclick="closeTopupModal()" class="w-full text-slate-500 font-bold py-3 mt-2">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- 💡 نافذة التذاكر والدعم الفني -->
+    <div id="supportModal" class="fixed inset-0 z-50 hidden flex-col justify-center items-center px-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSupportModal()"></div>
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 relative z-10 shadow-2xl">
+            <h3 class="font-black text-xl text-slate-800 mb-1">رفع شكوى للإدارة</h3>
+            <p class="text-xs text-slate-500 font-bold mb-4">بخصوص شبكة: <span id="supportNetName" class="text-violet-600"></span></p>
+            <select id="supportReason" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold mb-3 focus:border-violet-500 focus:outline-none">
+                <option value="الكرت لا يعمل">الكرت لا يعمل / يرفض الدخول</option>
+                <option value="الرصيد لم يصل">تم الخصم ولم يصلني الكرت</option>
+                <option value="مشكلة أخرى">مشكلة أخرى</option>
+            </select>
+            <textarea id="supportDesc" rows="3" placeholder="اكتب تفاصيل المشكلة هنا..." class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold mb-4 focus:border-violet-500 focus:outline-none"></textarea>
+            <button onclick="submitSupportTicket()" class="w-full bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg">إرسال الشكوى 📩</button>
+            <button onclick="closeSupportModal()" class="w-full text-slate-500 font-bold py-3 mt-2">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('customerNameDisplay').innerText = localStorage.getItem('customer_name') || 'عميل';
+
+        function switchTab(tab) {
+            document.getElementById('tab-networks').className = tab === 'networks' ? 'tab-active pb-3 text-lg font-bold' : 'tab-inactive pb-3 text-lg font-bold';
+            document.getElementById('tab-purchases').className = tab === 'purchases' ? 'tab-active pb-3 text-lg font-bold' : 'tab-inactive pb-3 text-lg font-bold';
+            document.getElementById('view-networks').className = tab === 'networks' ? 'block' : 'hidden';
+            document.getElementById('view-purchases').className = tab === 'purchases' ? 'block' : 'hidden';
+            if(tab === 'purchases') loadPurchases();
+        }
+
+        function logoutCustomer() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        // --- محرك الشحن ---
+        function openTopupModal() { document.getElementById('topupModal').classList.replace('hidden', 'flex'); }
+        function closeTopupModal() { document.getElementById('topupModal').classList.replace('flex', 'hidden'); }
+        function processTopup() {
+            const amount = document.getElementById('topupAmount').value;
+            if(!amount || amount < 100) return alert('الرجاء إدخال مبلغ صحيح');
+            alert(`✅ تم إرسال طلب الشحن بقيمة ${amount} ريال. في النظام الفعلي سيتم توجيهك للمطابقة.`);
+            document.getElementById('walletBalance').innerText = amount;
+            closeTopupModal();
+        }
+
+        // --- محرك الدعم الفني ---
+        let currentNetIdForSupport = null;
+        function openSupportModal(netName, netId) {
+            document.getElementById('supportNetName').innerText = netName;
+            currentNetIdForSupport = netId;
+            document.getElementById('supportModal').classList.replace('hidden', 'flex');
+        }
+        function closeSupportModal() { document.getElementById('supportModal').classList.replace('flex', 'hidden'); }
+        function submitSupportTicket() {
+            const reason = document.getElementById('supportReason').value;
+            alert(`📩 تم إرسال التذكرة بنجاح إلى فريق الدعم الفني!\nسيتم مراجعة مشكلة (${reason}) قريباً.`);
+            closeSupportModal();
+        }
+
+        // --- جلب البيانات ---
+        function loadNetworks() {
+            const list = document.getElementById('networksList');
+            // بيانات وهمية للربط
+            list.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div><h3 class="font-black">الماهر نت</h3><p class="text-xs text-emerald-500 font-bold mt-1">متصلة</p></div>
+                    <a href="store.html" class="bg-violet-50 text-violet-600 px-4 py-2 rounded-xl text-sm font-bold">المتجر</a>
+                </div>
+            `;
+        }
+        function loadPurchases() {
+            document.getElementById('purchasesList').innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-black text-lg">باقة أبو 100 <span class="text-xs font-bold text-violet-600">الماهر نت</span></h4>
+                        <button onclick="openSupportModal('الماهر نت', 1)" class="text-rose-500 text-xs font-bold mt-2 hover:underline">مشكلة في الكرت؟ أبلغ الدعم</button>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer" onclick="alert('تم النسخ')">
+                        <p class="font-black text-xl tracking-widest" dir="ltr">859344</p>
+                    </div>
+                </div>
+            `;
+        }
+        loadNetworks();
+    </script>
+</body>
+</html>
