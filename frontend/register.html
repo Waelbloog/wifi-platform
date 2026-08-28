@@ -603,17 +603,22 @@
             btn.disabled = true;
 
             try {
-                // 💡 نستخدم الـ API الموجود حالياً في MetaTron لتسجيل الحساب المبدئي
-                // (ملاحظة: السيرفر الحالي يأخذ الاسم، الإيميل، الباسورد، اسم الشبكة)
-                // قمنا بتوليد إيميل وهمي للربط مع الباك اند الحالي حتى يتم تحديث الباك اند لاحقاً
+                // 💡 تجميع كافة البيانات الحقيقية لإرسالها لقاعدة البيانات
                 const payload = {
                     owner_name: registrationData.account.fullName,
-                    email: `net_${registrationData.account.phone}@metatron.local`, 
+                    phone: registrationData.account.phone,
                     password: registrationData.account.password,
-                    network_name: registrationData.network.nameAr
+                    network_name: registrationData.network.nameAr,
+                    governorate: registrationData.network.governorate,
+                    district: registrationData.network.district,
+                    neighborhood: registrationData.network.neighborhood,
+                    latitude: registrationData.network.latitude,
+                    longitude: registrationData.network.longitude,
+                    packages: registrationData.packages
                 };
 
-                const response = await fetch('https://wifi-platform.onrender.com/api/auth/register', {
+                // توجيه الطلب إلى سيرفرك المحلي
+                const response = await fetch('http://localhost:3000/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -622,7 +627,6 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // إخفاء الـ Stepper وعرض شاشة النجاح (PENDING)
                     document.querySelector('.flex.items-center.justify-between.mb-10').style.display = 'none';
                     document.getElementById('step4').classList.remove('active');
                     document.getElementById('successScreen').classList.remove('hidden');
