@@ -84,11 +84,11 @@
             }
 
             try {
-                // إرسال البيانات للسيرفر المحلي (Localhost) أو السحابي
+                // إرسال البيانات للسيرفر المحلي (Localhost)
                 const response = await fetch('http://localhost:3000/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password }) // تم التعديل لإرسال الرقم بدلاً من الإيميل
+                    body: JSON.stringify({ phone, password }) // إرسال الرقم وكلمة المرور
                 });
 
                 const result = await response.json();
@@ -106,7 +106,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ فشل الاتصال بالسيرفر. تأكد أنه يعمل (Live).');
+                alert('❌ فشل الاتصال بالسيرفر. تأكد أن السيرفر يعمل (node server.js).');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
