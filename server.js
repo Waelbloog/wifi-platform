@@ -7,6 +7,7 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 const upload = multer({ storage: multer.memoryStorage() });
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
@@ -68,6 +69,73 @@ app.post('/api/auth/register', async (req, res) => {
     } catch (err) {
         console.error("Register Error:", err);
         res.status(500).json({ success: false, message: 'فشل في حفظ البيانات.' });
+    }
+});
+
+// ============================================================================
+// 📊 وحدة الإحصائيات (Dashboard Stats)
+// ============================================================================
+
+// ميدل وير (Middleware) للتحقق من هوية صاحب الشبكة
+const verifyToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(403).json({ success: false, message: 'غير مصرح' });
+    try {
+        const decoded = jwt.verify(token.split(' ')[1], 'METATRON_SECRET_KEY');
+        req.user = decoded; // يحتوي على id الشبكة
+        next();
+    } catch (err) {
+        res.status(401).json({ success: false, message: 'توكن غير صالح' });
+    }
+};
+
+// مسار جلب إحصائيات لوحة التحكم والمخزون
+app.get('/api/network/stats', verifyToken, async (req, res) => {
+    const networkId = req.user.id;
+    try {
+        // 1. مبيعات وأرباح اليوم
+        const todayQuery = await pool.query(`
+            SELECT COUNT(id) as today_sold, COALESCE(SUM(amount), 0) as today_revenue 
+            FROM transactions 
+            WHERE network_id = $1 AND status = 'completed' AND DATE(created_at) = CURRENT_DATE
+        `, [networkId]);
+
+        // 2. إجمالي الأرباح
+        const totalQuery = await pool.query(`
+            SELECT COALESCE(SUM(amount), 0) as total_revenue 
+            FROM transactions 
+            WHERE network_id = $1 AND status = 'completed'
+        `, [networkId]);
+
+        // 3. جرد المخزون لكل باقة (تنبيهات المخزون)
+        const stockQuery = await pool.query(`
+            SELECT p.name, COUNT(c.id) as available_cards 
+            FROM packages p
+            LEFT JOIN cards c ON p.id = c.package_id AND c.status = 'available'
+            WHERE p.network_id = $1
+            GROUP BY p.id, p.name
+        `, [networkId]);
+
+        // 4. بيانات الرسم البياني (مبيعات آخر 7 أيام)
+        const chartQuery = await pool.query(`
+            SELECT TO_CHAR(created_at, 'Day') as day_name, SUM(amount) as daily_total
+            FROM transactions
+            WHERE network_id = $1 AND status = 'completed' AND created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at), TO_CHAR(created_at, 'Day')
+            ORDER BY DATE(created_at) ASC
+        `, [networkId]);
+
+        res.json({
+            success: true,
+            today_sold: parseInt(todayQuery.rows[0].today_sold),
+            today_revenue: parseFloat(todayQuery.rows[0].today_revenue),
+            total_revenue: parseFloat(totalQuery.rows[0].total_revenue),
+            low_stock: stockQuery.rows,
+            chart_data: chartQuery.rows
+        });
+    } catch (err) {
+        console.error("Stats Error:", err);
+        res.status(500).json({ success: false });
     }
 });
 
